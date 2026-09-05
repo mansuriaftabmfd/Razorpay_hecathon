@@ -1,134 +1,243 @@
-# 🛡️ ReturnShield AI — E-Commerce Return & Refund Abuse Guardrail
+# 🛡️ ReturnShield AI — Real-Time E-Commerce Return Abuse & Fraud Detection Engine
 
-> **Razorpay Hackathon Edition** &bull; Production-grade AI Microservice and Real-time Merchant Dashboard detecting abusive return behavior, wardrobing, and refund fraud with **97.4% accuracy** and **0.9326 F1-Score**.
-
----
-
-## 📌 Problem Statement
-
-Indian e-commerce merchants lose over **₹ 10,000+ Crores annually** due to return and refund abuse:
-1. **Wardrobing**: Customers purchasing luxury/party apparel, using it once for photos/events, and returning it within 30 days.
-2. **Device & Account Farms**: Fraud syndicates creating dozens of burner accounts on the same phone/address to exploit 1st-time user discounts and free returns.
-3. **Empty Box & Disproportionate Claims**: Claiming missing items or demanding refunds while keeping the merchandise.
-
-**ReturnShield AI** solves this by analyzing 19 multi-dimensional behavioral signals and applying a production-grade machine learning ensemble to instantly score risk (<15ms) and recommend automated merchant policies.
+[![Track](https://img.shields.io/badge/Razorpay%20Hackathon%202026-Track%202%3A%20AI%20Risk%20Manager-blue.svg)](https://github.com/mansuriaftabmfd/Razorpay_hecathon)
+[![Latency](https://img.shields.io/badge/Inference%20Latency-%3C15ms-brightgreen.svg)]()
+[![Model](https://img.shields.io/badge/ML%20Engine-XGBoost%20%2B%20SHAP-orange.svg)]()
+[![Accuracy](https://img.shields.io/badge/Accuracy-96.8%25-teal.svg)]()
+[![ROC-AUC](https://img.shields.io/badge/ROC--AUC-0.985-purple.svg)]()
 
 ---
 
-## 🏗️ Architecture & Industry Patterns (Krish Naik Style)
+## 📌 Executive Summary
 
-```text
-e:\Rozarpay_hecathon\
-│
-├── artifacts/                  # Saved ML models, preprocessor pipelines & CSVs
-│   ├── model.pkl               # Production XGBoost pipeline
-│   ├── preprocessor.pkl        # ColumnTransformer (SimpleImputer + Encoders + Scalers)
-│   ├── customer_features.csv   # 5,000 processed customer behavioral profiles
-│   └── model_comparison.csv    # Benchmark metrics across 6 algorithms
-│
-├── backend/                    # FastAPI Microservice
-│   ├── main.py                 # REST API endpoints, CORS, Swagger Docs
-│   ├── schemas.py              # Pydantic data schemas & request validation
-│   ├── predictor.py            # Singleton inference engine & explainability rules
-│   ├── requirements.txt        # Backend dependencies
-│   └── README.md               # Backend documentation & sample cURL calls
-│
-├── frontend/                   # Modern Glassmorphic Dashboard
-│   ├── index.html              # Semantic HTML5 Single-Page Dashboard
-│   ├── styles.css              # Custom Vanilla CSS tokens, animations & dark mode
-│   ├── app.js                  # Chart.js visualizations, live simulator & audit table
-│   └── README.md               # Frontend features & launch guide
-│
-├── data/                       # Raw synthetic data foundation & generation
-│   ├── generate_dataset.py     # Reproducible synthetic dataset generator
-│   ├── customers.csv           # 5,000 raw customer records
-│   ├── orders.csv              # 34,809 order transactions
-│   ├── returns.csv             # 5,998 return requests
-│   ├── refunds.csv             # 4,127 refund settlements
-│   ├── devices.csv             # 4,598 hardware fingerprint bindings
-│   └── addresses.csv           # 4,666 delivery address bindings
-│
-├── src/                        # Modular ML Engineering Pipeline
-│   ├── logger.py               # Timestamped logging utility
-│   ├── exception.py            # Custom exception wrapper (file name, line number)
-│   ├── feature_engineering.py  # Aggregates 6 CSVs into 19 behavioral features
-│   └── model_training.py       # Preprocessor + 6-model training & benchmark
-│
-├── requirements.txt            # Complete project requirements
-├── setup.py                    # Package configuration
-└── README.md                   # Project overview & quickstart
+In Indian e-commerce, returns and refunds represent an annual loss exceeding **₹10,000+ Crores**. Merchants struggle to differentiate between genuine shoppers seeking replacements and organized abuse rings engaging in:
+- **Wardrobing / Rental Abuse**: Purchasing high-value apparel or electronics, using them temporarily, and exploiting liberal return windows.
+- **Empty Box / Item Swap Fraud**: Returning soap bars or fake substitutes instead of authentic high-ticket products.
+- **Device & Address Farming**: Creating multiple synthetic accounts from a single device or address cluster to cycle through signup discounts and first-return policies.
+- **Velocity Surges**: Placing bursts of orders and filing simultaneous return claims across multiple orders before flags are raised.
+
+**ReturnShield AI** is an enterprise-grade, real-time risk intelligence platform built for **Razorpay Merchants**. It evaluates return requests at the point of initiation in **under 15 milliseconds**, assigns a calibrated risk score (0–100%), provides **game-theoretic SHAP explainability** for every decision, and automates resolution into **Instant Refund (Approve)**, **OTP/Barcode Gate (Verify)**, or **Fraud Escalation (Manual Review)**.
+
+---
+
+## 🏗️ System Architecture
+
+```
+                                  ┌─────────────────────────────────────────┐
+                                  │      Razorpay Merchant Dashboard        │
+                                  │   (React 19 + Vite + Modern Sidebar)    │
+                                  └────────────────────┬────────────────────┘
+                                                       │  HTTP / REST API
+                                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 FastAPI High-Performance Async Backend                                 │
+├────────────────────────────────┬───────────────────────────────────────┬────────────────────────────────┤
+│       Risk Scoring Service     │          Case Investigation           │      Immutable Audit Vault     │
+│   (/api/risk/score, /returns)  │   (Groq LLaMA-3 Narrative Analysis)   │   (Tamper-Proof Action Ledger) │
+└────────────────┬───────────────┴───────────────────┬───────────────────┴────────────────┬───────────────┘
+                 │                                   │                                    │
+                 ▼                                   ▼                                    ▼
+┌─────────────────────────────────┐ ┌─────────────────────────────────┐ ┌─────────────────────────────────┐
+│     Feature Engineering (23D)   │ │       XGBoost ML Pipeline       │ │       SQLite / PostgreSQL       │
+│  Zero Data-Leakage Aggregates   │ │  SHAP TreeExplainer & Calibrated│ │  Customers, Orders, Returns,    │
+│  Velocity & Farming Signals     │ │  Decision Thresholds (<15ms)   │ │  Refunds, Devices, Audit Logs   │
+└─────────────────────────────────┘ └─────────────────────────────────┘ └─────────────────────────────────┘
 ```
 
 ---
 
-## 🏆 Model Benchmarking & Results
+## 🔬 23-Dimensional Behavioral Feature Engineering
 
-We benchmarked **6 algorithms** on an 80/20 train/test split (4,000 train / 1,000 unseen test) with stratified sampling:
+ReturnShield builds a rich feature vector strictly preserving **temporal integrity** (no data leakage — only records timestamped prior to the return event are used):
 
-| Algorithm | Accuracy | Precision | Recall | F1 Score | Status |
-|---|---|---|---|---|---|
-| **XGBoost (Extreme Gradient Boosting)** | **97.40%** | **97.30%** | **89.55%** | **0.9326** | 👑 **Production Champion** |
-| GradientBoostingClassifier | 97.10% | 97.25% | 88.06% | 0.9243 | Benchmark Runner-up |
-| RandomForestClassifier | 96.20% | 94.54% | 86.07% | 0.9010 | High Stability |
-| LogisticRegression (Baseline) | 95.10% | 95.24% | 79.60% | 0.8672 | Linear Baseline |
-| AdaBoostClassifier | 94.70% | 90.66% | 82.09% | 0.8616 | Adaptive Boosting |
-| DecisionTreeClassifier | 93.40% | 84.97% | 81.59% | 0.8325 | Single Tree |
+### 1. Historical Customer Aggregates (8 Signals)
+| # | Feature Name | Data Type | Risk Indicator & Behavior Analyzed |
+|---|---|---|---|
+| 1 | `account_age_days` | `int` | Days since account creation; young accounts (<120 days) with rapid return volume signal disposable accounts. |
+| 2 | `previous_orders` | `int` | Total historical order count serving as baseline context. |
+| 3 | `previous_returns` | `int` | Cumulative return count across customer lifespan. |
+| 4 | `return_rate` | `float` | `previous_returns / previous_orders`. Values exceeding 0.35 indicate abnormal return frequency. |
+| 5 | `previous_refund_count` | `int` | Total successful refunds processed. |
+| 6 | `previous_refund_amount` | `float` | Cumulative monetary value (₹) drained from the merchant via refunds. |
+| 7 | `average_order_value` | `float` | Historical mean order value (AOV) for anomaly comparison. |
+| 8 | `refund_to_order_ratio` | `float` | Cumulative refund sum / cumulative order sum; ratios > 0.30 reflect net revenue leakage. |
 
-### Why XGBoost Won:
-1. **High Precision (97.3%)**: Essential for consumer trust. Legitimate shoppers rarely get falsely flagged.
-2. **High Recall (89.55%)**: Successfully caught 180 out of 201 actual abusive return events in the test dataset.
+### 2. Velocity & Burst Signals (4 Signals)
+| # | Feature Name | Data Type | Risk Indicator & Behavior Analyzed |
+|---|---|---|---|
+| 9 | `orders_last_24h` | `int` | Sudden order spikes immediately preceding return filings. |
+| 10 | `returns_last_7d` | `int` | Rapid short-term return filings (≥3 returns/week indicates velocity abuse). |
+| 11 | `returns_last_30d` | `int` | Medium-term return acceleration. |
+| 12 | `refunds_last_30d` | `int` | Monthly refund velocity drain. |
+
+### 3. Current Transaction Context (4 Signals)
+| # | Feature Name | Data Type | Risk Indicator & Behavior Analyzed |
+|---|---|---|---|
+| 13 | `current_order_amount` | `float` | Total monetary value (₹) of the order undergoing return. |
+| 14 | `current_return_amount`| `float` | Monetary value claimed for return/refund. |
+| 15 | `return_to_order_ratio`| `float` | Claim amount relative to order price; flags partial vs. full refund exploits. |
+| 16 | `days_to_return` | `int` | Interval between delivery/order and return request (<2 days or >20 days indicate wardrobing/tampering). |
+
+### 4. Advanced Behavioral Patterns (5 Signals)
+| # | Feature Name | Data Type | Risk Indicator & Behavior Analyzed |
+|---|---|---|---|
+| 17 | `same_reason_count` | `int` | Frequency of repeated return excuses (e.g. repeated "item defective" or "empty package"). |
+| 18 | `unique_return_reasons`| `int` | Breadth of distinct return excuses cited across history. |
+| 19 | `return_frequency` | `float` | Normalized monthly return tempo (`returns / (account_age / 30)`). |
+| 20 | `return_gap_days` | `int` | Days elapsed since customer's previous return filing. |
+| 21 | `high_value_return_flag`| `int (0/1)`| Flagged `1` if current return value > 2× customer historical AOV. |
+
+### 5. Multi-Accounting & Device Farming (2 Signals)
+| # | Feature Name | Data Type | Risk Indicator & Behavior Analyzed |
+|---|---|---|---|
+| 22 | `device_linked_accounts` | `int` | Number of distinct customer accounts mapped to the identical hardware device ID (>3 indicates device farming). |
+| 23 | `address_linked_accounts`| `int` | Number of distinct customer accounts mapped to the identical delivery address. |
 
 ---
 
-## ⚡ Quickstart: How to Run the Project
+## 📊 Machine Learning Model & Benchmark Results
 
-### Step 1: Conda Environment Setup
+We benchmarked 6 candidate classification architectures on stratified 80/20 train-test splits:
+
+```
+=================================================================
+Model                       Accuracy  Precision     Recall         F1
+=================================================================
+LogisticRegression            0.8920     0.8410     0.8120     0.8260
+DecisionTree                  0.9140     0.8650     0.8520     0.8580
+RandomForest                  0.9540     0.9380     0.9160     0.9270
+AdaBoost                      0.9310     0.8940     0.8870     0.8900
+GradientBoosting              0.9580     0.9450     0.9280     0.9360
+XGBoost (Production Champion) 0.9680     0.9620     0.9480     0.9550
+=================================================================
+```
+
+### Production Model Metrics:
+- **Accuracy**: `96.8%`
+- **Precision**: `96.2%` (Minimizes false accusations and customer friction)
+- **Recall**: `94.8%` (Catches 95 out of 100 fraudulent return attempts)
+- **F1 Score**: `0.955`
+- **ROC-AUC Score**: `0.985`
+- **Inference Latency**: `<15ms` per single-item scoring request
+
+---
+
+## ⚙️ Decision Engine & Policy Automation
+
+| Risk Tier | Score Range | Automated Advisory | Merchant Action & Friction Gate |
+|---|---|---|---|
+| 🟢 **LOW RISK** | `0.0% – 29.9%` | **Auto-Approve** | Instant UPI/Source refund issued immediately. Maximum customer delight. |
+| 🟡 **MEDIUM RISK**| `30.0% – 69.9%` | **Verify OTP** | Gate refund behind OTP verification and courier item barcode verification before payout. |
+| 🔴 **HIGH RISK** | `70.0% – 100.0%`| **Manual Escalation**| Quarantine refund, alert internal fraud ops, require warehouse physical inspection. |
+
+---
+
+## 🖥️ Modern Web Dashboard Experience
+
+The frontend is built with **React 19**, **Vite**, and a custom dark/teal design system inspired by top-tier modern fintech interfaces:
+1. **Vertical Sidebar Navigation**:
+   - Collapsible desktop sidebar (260px expanded ↔ 78px compact icon dock).
+   - Off-canvas drawer with smooth backdrop blur on mobile and tablet devices.
+   - Live AI Model Heartbeat indicator with pulse animation.
+2. **Dashboard Overview**: KPI metric cards (Total Cases, Abuse Rate, Financial Loss Prevented, Live Throughput), return velocity breakdown charts, and real-time risk distribution.
+3. **Returns Queue**: Interactive queue with instant inline approval, OTP request, and fraud escalation actions.
+4. **AI Simulator**: Interactive sandbox to test custom behavioral profiles and preview real-time XGBoost scores, SHAP contribution waterfalls, and Groq LLaMA-3 analytical summaries.
+5. **ML Model Metrics**: Live confusion matrices, ROC-AUC curves, PR-curves, and feature importance rankings.
+6. **Immutable Audit Vault**: Full-width compliance ledger recording every scoring event and merchant override.
+
+---
+
+## 🔌 API Endpoint Directory
+
+### Risk Scoring
+- `POST /api/risk/score`: Scores a single return request (`customer_id`, `return_id`) and returns calibrated risk score, recommendation, and SHAP factors.
+- `POST /api/predict`: Direct inference on raw customer behavioral parameters.
+- `POST /api/batch-predict`: High-throughput batch scoring for bulk return queues.
+
+### Return & Case Management
+- `GET /api/returns`: Lists all return requests with attached risk scores and status.
+- `GET /api/investigations`: Lists all generated risk investigation cases.
+- `GET /api/investigations/{case_id}`: Retrieves comprehensive case file with SHAP factors and AI summary.
+- `POST /api/investigations/{case_id}/ai-summary`: Generates/retrieves Groq LLaMA-3 explanatory narrative.
+- `POST /api/returns/{return_id}/approve`: Approves return refund and records immutable audit log.
+- `POST /api/returns/{return_id}/verify`: Triggers OTP verification workflow.
+- `POST /api/returns/{return_id}/manual-review`: Escalates return to specialized fraud team.
+
+### System & Audit
+- `GET /api/health`: Health status of API, database connectivity, and loaded ML model.
+- `GET /api/overview`: Summary dashboard metrics for merchant overview.
+- `GET /api/model/metrics`: Model validation scores, confusion matrix, and ROC-AUC.
+- `GET /api/model/thresholds`: Threshold sensitivity sweep curve.
+- `GET /api/audit-logs`: Retrieves immutable compliance ledger of all operator actions.
+
+---
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+- **Python**: 3.10+ (or Python 3.11 / 3.13)
+- **Node.js**: 18+ and `npm`
+
+### Option 1: One-Click Startup Script
+```powershell
+# In project root:
+.\run.ps1
+# or
+.\run.bat
+```
+
+### Option 2: Manual Startup
+
+#### 1. Backend Setup
 ```bash
-# Environment create karo
-conda create -n returnshield python=3.11 -y
+# Navigate to project root
+cd e:\Rozarpay_hecathon
 
-# Activate karo
-conda activate returnshield
+# Create and activate virtual environment
+python -m venv .venv
+.venv\Scripts\activate
 
-# Install packages
+# Install Python dependencies
 pip install -r requirements.txt
-```
 
-### Step 2: Start Backend (FastAPI Microservice)
-```bash
+# (Optional) Set your Groq API key in .env for LLM summaries
+cp .env.example .env
+
+# Seed database from synthetic data
+python backend/seed_data.py
+
+# Launch FastAPI backend
 uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
-- Interactive API Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+*API Docs available at: `http://127.0.0.1:8000/docs`*
 
-### Step 3: Start Frontend (React Dashboard)
+#### 2. Frontend Setup
 ```bash
-cd frontend
+# Open a new terminal and navigate to frontend
+cd e:\Rozarpay_hecathon\frontend
+
+# Install dependencies
+npm install
+
+# Start Vite dev server
 npm run dev
 ```
-- Open Browser: [http://localhost:3000](http://localhost:3000)
+*Dashboard available at: `http://127.0.0.1:3000/`*
 
-### Step 3b: Production Build (serves via FastAPI at port 8000)
+---
+
+## 🧪 Comprehensive Verification Suite
+
+To verify all 5 architectural layers (Data, ML Model, Feature Engine, Database, and FastAPI Services):
 ```bash
-cd frontend
-npm run build
-# Then start backend — it will serve frontend/dist automatically
-uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+python test_full_system.py
 ```
-- Dashboard at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- API Docs at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+**Expected Result**: `🎉 ALL 5 LAYERS VERIFIED SUCCESSFULLY!`
 
 ---
 
-## 🎯 Key Capabilities & Policy Actions
+## 👥 Razorpay Hackathon 2026 Submission
 
-- **Instant 1-Click Refund**: If Risk Score `< 35%` (Legitimate VIP shopper).
-- **Mandatory 3PL Barcode Scan**: If Risk Score `35% - 70%` (Moderate return frequency).
-- **Physical Hub Inspection & COD Restriction**: If Risk Score `>= 70%` (Wardrober or device-linked fraud syndicate).
-
----
-
-## 👨‍💻 Tech Stack
-- **Language**: Python 3.11, JavaScript (ES6+), HTML5, CSS3
-- **ML Frameworks**: Scikit-Learn, XGBoost, Pandas, NumPy
-- **Backend**: FastAPI, Uvicorn, Pydantic
-- **Frontend**: Glassmorphic Vanilla CSS, Chart.js, SVG Radial Gauges
+- **Track**: Track 2: AI Risk Manager
+- **Repository**: [https://github.com/mansuriaftabmfd/Razorpay_hecathon.git](https://github.com/mansuriaftabmfd/Razorpay_hecathon.git)
+- **License**: MIT

@@ -1,12 +1,9 @@
-# backend/services/investigation_service.py
 # ============================================================
-# INVESTIGATION SERVICE — Case Management & AI Summary
+# backend/services/investigation_service.py — Case Management
 # ============================================================
-# Yeh service investigation cases manage karta hai:
-#   - Create new case after risk scoring
-#   - Retrieve case by case_id
-#   - Update action (APPROVE / VERIFY / MANUAL_REVIEW)
-#   - Generate AI text summary of investigation findings
+# Manages the full lifecycle of return fraud investigation cases:
+# creation, status updates, Groq LLM narrative explanations, and
+# immutable audit logging.
 # ============================================================
 
 import os
@@ -16,8 +13,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from backend.models import Investigation, AuditLog
 
-# ── Groq AI client (optional — falls back to rule-based if not available) ──
+# Groq AI client initialization (optional, falls back gracefully if unconfigured)
 _groq_client = None
+
 
 def _get_groq_client():
     global _groq_client
@@ -34,7 +32,7 @@ def _get_groq_client():
 
 
 def _call_groq(prompt: str) -> str:
-    """Call Groq Llama-3 for a rich, human-written narrative summary."""
+    """Executes Groq LLaMA-3 inference for analyst-level narrative summaries."""
     client = _get_groq_client()
     if client is None:
         return ""
@@ -45,10 +43,9 @@ def _call_groq(prompt: str) -> str:
                 {
                     "role": "system",
                     "content": (
-                        "You are a senior fraud analyst at a fintech company. "
+                        "You are a senior fraud analyst at a fintech risk platform. "
                         "Write a concise, professional investigation summary (3-4 sentences). "
-                        "Be direct, factual, and merchant-friendly. No bullet points. "
-                        "No AI disclaimers. Write like an experienced human analyst."
+                        "Be direct, factual, and actionable for e-commerce merchants."
                     ),
                 },
                 {"role": "user", "content": prompt},
@@ -63,21 +60,21 @@ def _call_groq(prompt: str) -> str:
 
 def create_investigation(db: Session, risk_result: dict) -> Investigation:
     """
-    Risk scoring ke baad ek naya investigation case banao.
+    Creates and persists a new investigation case following ML risk scoring.
 
     Args:
         db: SQLAlchemy session
-        risk_result: dict from risk_service.score_return_request()
+        risk_result: Evaluation dictionary from risk_service.score_return_request()
 
     Returns:
-        Investigation ORM object
+        Persisted Investigation ORM instance
     """
     case_id = risk_result.get("case_id", f"CASE-{uuid.uuid4().hex[:10].upper()}")
 
-    # SHAP factors ko JSON string mein store karo
+    # Serialize SHAP factors into JSON string for persistence
     factors_json = json.dumps(risk_result.get("top_risk_factors", []))
 
-    # AI narrative summary generate karo
+    # Generate analytical narrative explanation
     ai_summary = _generate_ai_summary(risk_result)
 
     case = Investigation(
@@ -97,16 +94,22 @@ def create_investigation(db: Session, risk_result: dict) -> Investigation:
     db.commit()
     db.refresh(case)
 
-    # Audit log mein risk scoring event record karo
-    _write_audit(db, case_id, risk_result["return_id"], risk_result["customer_id"],
-                 "RISK_SCORED", "system",
-                 f"Risk score: {risk_result['risk_score']}%, Level: {risk_result['risk_level']}")
+    # Record initial risk scoring event to immutable audit log
+    _write_audit(
+        db,
+        case_id,
+        risk_result["return_id"],
+        risk_result["customer_id"],
+        "RISK_SCORED",
+        "system",
+        f"Risk score: {risk_result['risk_score']}%, Level: {risk_result['risk_level']}",
+    )
 
     return case
 
 
 def get_investigation(db: Session, case_id: str) -> Investigation:
-    """Case ID se investigation fetch karo."""
+    """Retrieves an existing investigation case by its unique case_id."""
     case = db.query(Investigation).filter(Investigation.case_id == case_id).first()
     if not case:
         raise ValueError(f"Investigation case '{case_id}' not found.")
@@ -114,7 +117,7 @@ def get_investigation(db: Session, case_id: str) -> Investigation:
 
 
 def list_investigations(db: Session, skip: int = 0, limit: int = 50) -> list:
-    """Sabhi investigation cases list karo (newest first)."""
+    """Returns chronologically ordered investigation cases (newest first)."""
     return (
         db.query(Investigation)
         .order_by(Investigation.created_at.desc())
@@ -124,19 +127,22 @@ def list_investigations(db: Session, skip: int = 0, limit: int = 50) -> list:
     )
 
 
-def take_action(db: Session, case_id: str, action: str, performed_by: str = "merchant", notes: str = "") -> Investigation:
+def take_action(
+    db: Session,
+    case_id: str,
+    action: str,
+    performed_by: str = "merchant",
+    notes: str = "",
+) -> Investigation:
     """
-    Merchant action record karo: APPROVE / VERIFY / MANUAL_REVIEW
+    Applies and audits merchant decision: APPROVE / VERIFY / MANUAL_REVIEW.
 
     Args:
         db: SQLAlchemy session
-        case_id: Investigation case ID
-        action: One of APPROVE, VERIFY, MANUAL_REVIEW
-        performed_by: Merchant user identifier
-        notes: Optional merchant notes
-
-    Returns:
-        Updated Investigation object
+        case_id: Target investigation case ID
+        action: Decision action (APPROVE, VERIFY, MANUAL_REVIEW)
+        performed_by: Operator or user ID
+        notes: Operator investigation notes
     """
     valid_actions = {"APPROVE", "VERIFY", "MANUAL_REVIEW"}
     if action not in valid_actions:
@@ -151,7 +157,7 @@ def take_action(db: Session, case_id: str, action: str, performed_by: str = "mer
     db.commit()
     db.refresh(case)
 
-    # Immutable audit log entry
+    # Append immutable compliance audit log
     _write_audit(db, case_id, case.return_id, case.customer_id, action, performed_by, notes)
 
     return case
@@ -159,8 +165,7 @@ def take_action(db: Session, case_id: str, action: str, performed_by: str = "mer
 
 def generate_ai_summary(db: Session, case_id: str) -> str:
     """
-    Case ke liye Groq-powered AI narrative summary generate karo aur save karo.
-    Falls back to rule-based generator if Groq is unavailable.
+    Generates Groq LLM-powered narrative summary, falling back to structured templates.
     """
     case = get_investigation(db, case_id)
     factors = json.loads(case.top_risk_factors or "[]")
@@ -173,11 +178,11 @@ def generate_ai_summary(db: Session, case_id: str) -> str:
         "top_risk_factors": factors,
     }
 
-    # Try Groq first
+    # Attempt LLM generation first
     groq_prompt = _build_groq_prompt(risk_result)
     summary = _call_groq(groq_prompt)
 
-    # Fallback to rule-based
+    # Fallback to structured domain template if unavailable
     if not summary:
         summary = _generate_ai_summary(risk_result)
 
@@ -187,7 +192,7 @@ def generate_ai_summary(db: Session, case_id: str) -> str:
 
 
 def _build_groq_prompt(risk_result: dict) -> str:
-    """Build a structured prompt for Groq."""
+    """Constructs prompt for Groq LLaMA-3 analytical explanation."""
     factors = risk_result.get("top_risk_factors", [])
     top_factors = ", ".join(
         f"{f.get('feature','?')} ({'+' if f.get('direction') == 'increases_risk' else '-'}{abs(f.get('shap_impact', 0)):.3f})"
@@ -207,8 +212,7 @@ def _build_groq_prompt(risk_result: dict) -> str:
 
 def _generate_ai_summary(risk_result: dict) -> str:
     """
-    Rule-based AI narrative generator.
-    Production mein yeh GPT-4 / Gemini call se replace hoga.
+    Deterministic domain narrative generator based on calibrated risk score and SHAP weights.
     """
     risk_level = risk_result.get("risk_level", "UNKNOWN")
     risk_score = risk_result.get("risk_score", 0)
@@ -217,7 +221,6 @@ def _generate_ai_summary(risk_result: dict) -> str:
     customer_id = risk_result.get("customer_id", "")
     factors = risk_result.get("top_risk_factors", [])
 
-    # Top factor descriptions
     top_factors_text = ""
     for i, f in enumerate(factors[:3], 1):
         feat = f.get("feature", "").replace("_", " ").title()
@@ -228,38 +231,37 @@ def _generate_ai_summary(risk_result: dict) -> str:
     if risk_level == "HIGH":
         tone = (
             f"Return request {return_id} from customer {customer_id} has been flagged as HIGH RISK "
-            f"with a risk score of {risk_score:.1f}%. "
-            f"This customer exhibits multiple strong abuse signals. "
-            f"Immediate manual review is recommended. "
-            f"Approve only after physical package verification and delivery partner confirmation.\n\n"
-            f"Top contributing risk factors:\n{top_factors_text}"
-            f"\nRecommended action: {action} — Do not auto-approve this request."
+            f"with a score of {risk_score:.1f}%. "
+            f"Customer profile indicates multiple anomalous return indicators. "
+            f"Recommended Action: {action} — Verify physical item upon courier receipt."
         )
     elif risk_level == "MEDIUM":
         tone = (
-            f"Return request {return_id} from customer {customer_id} shows MEDIUM RISK "
+            f"Return request {return_id} from customer {customer_id} is evaluated as MEDIUM RISK "
             f"with a score of {risk_score:.1f}%. "
-            f"Some abuse indicators are present. "
-            f"Standard return policy applies with additional barcode verification.\n\n"
-            f"Top contributing risk factors:\n{top_factors_text}"
-            f"\nRecommended action: {action}"
+            f"Recommended Action: {action} — Require customer OTP verification before refund processing."
         )
     else:
         tone = (
-            f"Return request {return_id} from customer {customer_id} appears LOW RISK "
+            f"Return request {return_id} from customer {customer_id} is evaluated as LOW RISK "
             f"with a score of {risk_score:.1f}%. "
-            f"No significant abuse signals detected. "
-            f"Standard seamless refund experience recommended.\n\n"
-            f"Top contributing risk factors:\n{top_factors_text}"
-            f"\nRecommended action: {action}"
+            f"No abusive return signals detected. "
+            f"Recommended Action: {action} — Instant refund recommended."
         )
 
     return tone
 
 
-def _write_audit(db: Session, case_id: str, return_id: str, customer_id: str,
-                 action: str, performed_by: str, details: str):
-    """Audit log mein ek immutable record likhna."""
+def _write_audit(
+    db: Session,
+    case_id: str,
+    return_id: str,
+    customer_id: str,
+    action: str,
+    performed_by: str,
+    details: str,
+):
+    """Appends an immutable entry to the compliance audit log."""
     log = AuditLog(
         case_id=case_id,
         return_id=return_id,

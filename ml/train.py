@@ -1,14 +1,11 @@
 # ============================================================
 # ml/train.py — XGBoost Training Pipeline
 # ============================================================
-#
-# YEH FILE KYA KARTI HAI?
-# ------------------------
-# 1. Feature engineering se per-return dataset load karta hai
-# 2. ColumnTransformer se preprocessing pipeline banata hai:
-#    - Numerical -> SimpleImputer(median) -> StandardScaler
-# 3. XGBoost classifier train karta hai
-# 4. Model + preprocessor save karta hai artifacts/ mein
+# 1. Loads engineered return-level feature vectors from artifacts
+# 2. Builds ColumnTransformer preprocessing pipeline (Imputer -> Scaler)
+# 3. Trains high-performance XGBoost Classifier with tuned hyperparameters
+# 4. Evaluates precision, recall, F1, ROC-AUC, and FP/FN cost tradeoffs
+# 5. Persists model pipeline, preprocessor, and metrics to artifacts/
 # ============================================================
 
 import os

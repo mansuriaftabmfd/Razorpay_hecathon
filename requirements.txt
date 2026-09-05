@@ -1,27 +1,28 @@
 # ============================================================
-# ReturnShield AI - Requirements
+# ReturnShield AI — Python Dependencies
 # ============================================================
+# 1. Core Data Science & Machine Learning:
+#    - numpy: High-performance tensor & matrix operations
+#    - pandas: Data manipulation and feature extraction
+#    - scikit-learn: Preprocessing transformers, pipelines, and benchmarks
+#    - xgboost: Production gradient boosting classifier
+#    - shap: Game-theoretic feature interpretability
 #
-# YEH PACKAGES KIS LIYE HAIN?
-# ────────────────────────────
-# 1. Data Manipulation & Math:
-#    - numpy: Matrix aur array computations
-#    - pandas: Dataframe operations, CSV load/save/cleaning
+# 2. Visualization & Evaluation:
+#    - matplotlib: ROC curves and confusion matrix charts
+#    - seaborn: Statistical data distributions
 #
-# 2. Machine Learning & Modeling (Krish Naik Style):
-#    - scikit-learn: Pipelines, ColumnTransformer, Imputers, Encoders, Models
-#    - xgboost: State-of-the-art gradient boosting model
+# 3. Backend & REST API:
+#    - fastapi: High-performance asynchronous REST API framework
+#    - uvicorn: Production ASGI server
+#    - pydantic: Strongly typed request/response validation schemas
+#    - sqlalchemy: Relational database ORM
+#    - python-multipart: Multipart form support
+#    - requests: HTTP client utility
 #
-# 3. Visualization & EDA (Optional Analysis):
-#    - matplotlib: Plotting charts aur curves (ROC-AUC, Confusion Matrix)
-#    - seaborn: Statistical data visualization
-#
-# 4. API & Backend (Phase 3 & 4):
-#    - fastapi: Fast high-performance REST API framework
-#    - uvicorn: ASGI web server API run karne ke liye
-#    - pydantic: Input data validation aur schemas
-#    - python-multipart: Form data & file uploads
-#    - requests: HTTP client testing ke liye
+# 4. AI & Environment:
+#    - groq: LLaMA-3 analytical narrative synthesis
+#    - python-dotenv: Environment variable management
 # ============================================================
 
 # Core Data Science & ML
@@ -39,6 +40,7 @@ seaborn>=0.12.0
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 pydantic>=2.4.0
+sqlalchemy>=2.0.0
 python-multipart>=0.0.6
 requests>=2.31.0
 

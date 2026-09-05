@@ -1,9 +1,8 @@
-# backend/schemas.py
 # ============================================================
-# PYDANTIC SCHEMAS — Request & Response Validation
+# backend/schemas.py — Pydantic Request & Response Models
 # ============================================================
-# Yeh file define karti hai ki API ke request body aur
-# response body mein kya data aayega.
+# Defines strongly typed data validation contracts for API endpoints:
+# Risk Scoring, Merchant Actions, Returns, Metrics, and Audit Vault.
 # ============================================================
 
 from typing import List, Optional, Dict, Any
@@ -13,9 +12,9 @@ from pydantic import BaseModel, Field
 # ── Risk Scoring ─────────────────────────────────────────────
 
 class RiskScoreRequest(BaseModel):
-    """POST /api/risk/score ke liye input."""
-    customer_id: str = Field(..., description="Customer ID, e.g. CUST00001")
-    return_id: str = Field(..., description="Return ID, e.g. RET000001")
+    """Input contract for POST /api/risk/score"""
+    customer_id: str = Field(..., description="Unique customer ID, e.g. CUST00001")
+    return_id: str = Field(..., description="Unique return request ID, e.g. RET000001")
 
 
 class ShapFactor(BaseModel):

@@ -1,13 +1,10 @@
 # ============================================================
 # ml/feature_engineering.py — Per-Return Feature Builder
 # ============================================================
-#
-# YEH FILE KYA KARTI HAI?
-# ────────────────────────
-# 1. Input: customer_id + return_id (+ data dict / cutoff_time)
-# 2. Output: Single feature vector (23 features)
+# 1. Inputs: customer_id + return_id (+ data dict / cutoff_time)
+# 2. Output: Single feature vector with 23 behavioral fraud signals
 # 3. Data Leakage Protection: Only data strictly BEFORE return_date is used.
-# 4. Fast pre-indexed lookups for real-time inference and ultra-fast training dataset generation.
+# 4. Fast pre-indexed lookups for real-time inference and training generation.
 # ============================================================
 
 import os
@@ -16,7 +13,7 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 
-# Logger aur Exception import
+# Logger and custom exception
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from src.logger import logger
 from src.exception import CustomException

@@ -1,51 +1,30 @@
 # ============================================================
-# logger.py — Logging Setup for ReturnShield AI
+# logger.py — Enterprise Logging Setup for ReturnShield AI
 # ============================================================
-# 
-# YEH FILE KYA KARTI HAI?
-# ────────────────────────
-# Jab bhi koi important cheez hoti hai (data load hua, model train hua,
-# error aaya), toh yeh uska record ek .log file mein save karti hai.
-#
-# Industry mein kyun zaroori hai?
-# - Production mein terminal nahi dikhta, logs se debug karte hain
-# - Timestamp hota hai toh pata chalta hai kab kya hua
-# - Hackathon mein dikhao toh judges impress hote hain
-#
-# KAISE USE KARNA HAI?
-# ────────────────────
-#   from src.logger import logger
-#   logger.info("Data loaded successfully")
-#   logger.error("File not found!")
+# Provides unified, timestamped file and console logging across
+# data pipelines, model training, API services, and audit vault.
 # ============================================================
 
-import logging    # Python ki built-in library hai logging ke liye
-import os         # Folders create karne ke liye
-from datetime import datetime  # Current date-time ke liye
+import logging
+import os
+from datetime import datetime
 
-# ── Log file ka naam banao (date-time ke saath) ──
-# Har baar jab program run hoga, ek naya log file banega
-# Example: "09_05_2026_15_30_45.log"
+# Generate unique timestamped log file per execution run
 LOG_FILE = f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
 
-# ── Logs folder ka path banao ──
-# logs/ folder mein sab log files jayengi
+# Define directory path for application logs
 logs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-
-# Agar logs/ folder exist nahi karta toh bana do
 os.makedirs(logs_path, exist_ok=True)
 
-# ── Full path of the log file ──
+# Full absolute path for target log file
 LOG_FILE_PATH = os.path.join(logs_path, LOG_FILE)
 
-# ── Logging ko configure karo ──
-# basicConfig = ek baar setup karo, phir poore project mein kaam karega
+# Configure logging format and level
 logging.basicConfig(
-    filename=LOG_FILE_PATH,           # Kahan save karna hai
+    filename=LOG_FILE_PATH,
     format="[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s",
-    # ↑ Format: [timestamp] line_number file_name - INFO/ERROR - message
-    level=logging.INFO,               # INFO level aur usse upar sab log hoga
+    level=logging.INFO,
 )
 
-# ── Logger object banao jo poore project mein use hoga ──
+# Export standard logger instance for project-wide usage
 logger = logging.getLogger("ReturnShieldAI")

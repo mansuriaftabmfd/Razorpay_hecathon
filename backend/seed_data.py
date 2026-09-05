@@ -1,12 +1,8 @@
-# backend/seed_data.py
 # ============================================================
-# SEED DATABASE — CSV Data ko SQLite mein load karo
+# backend/seed_data.py — Database Population from CSV Datasets
 # ============================================================
-# Yeh script ek baar chalao: woh sab 6 raw CSV files padh ke
-# SQLite database mein rows insert kar deta hai.
-#
-# Run karo:
-#   .venv\Scripts\python.exe backend/seed_data.py
+# Ingests synthetic e-commerce data files from data/ directory
+# and populates relational SQLite database entities.
 # ============================================================
 
 import os

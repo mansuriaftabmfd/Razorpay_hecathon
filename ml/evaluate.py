@@ -1,17 +1,14 @@
 # ============================================================
-# ml/evaluate.py — Comprehensive Model Evaluation
+# ml/evaluate.py — Comprehensive Model Evaluation & Benchmarking
 # ============================================================
-#
-# YEH FILE KYA KARTI HAI?
-# ────────────────────────
-# 1. Trained XGBoost model + test dataset load karta hai
-# 2. Comprehensive evaluation metrics compute karta hai:
+# 1. Loads persisted XGBoost model and test feature dataset
+# 2. Computes evaluation metrics:
 #    - Accuracy, Precision, Recall, F1-Score
-#    - ROC-AUC, PR-AUC
+#    - ROC-AUC, Precision-Recall AUC (PR-AUC)
 #    - Confusion Matrix (TP, TN, FP, FN)
-#    - FP/FN Financial / Friction Cost Analysis
-#    - Optimal Threshold Analysis (0.1 to 0.9)
-# 3. artifacts/metrics.json aur artifacts/threshold_analysis.json save karta hai
+#    - Financial cost and merchant friction analysis
+#    - Decision threshold sensitivity sweep (0.1 to 0.9)
+# 3. Saves metrics.json and threshold_analysis.json in artifacts/
 # ============================================================
 
 import os

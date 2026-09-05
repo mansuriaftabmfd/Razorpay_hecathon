@@ -1,22 +1,12 @@
-# backend/models.py
 # ============================================================
-# SQLAlchemy ORM Models — Database Tables
+# backend/models.py — SQLAlchemy Relational ORM Models
 # ============================================================
-# Yeh file define karti hai ki database mein kaun si tables
-# hongi aur unke columns kaun se honge.
-#
-# Tables:
-#   - customers         (raw CSV data mirrored)
-#   - orders            (raw CSV data mirrored)
-#   - returns           (raw CSV data mirrored)
-#   - refunds           (raw CSV data mirrored)
-#   - devices           (raw CSV data mirrored)
-#   - addresses         (raw CSV data mirrored)
-#   - investigations    (NEW: case management)
-#   - audit_logs        (NEW: merchant action audit trail)
+# Defines normalized database entities for core business domain:
+# Customers, Orders, Returns, Refunds, Devices, Addresses,
+# Investigations (Risk Cases), and Immutable AuditLogs.
 # ============================================================
 
-from sqlalchemy import Column, String, Integer, Float, DateTime, Text, Boolean, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, DateTime, Text
 from sqlalchemy.sql import func
 from backend.database import Base
 
@@ -90,8 +80,8 @@ class Address(Base):
 
 class Investigation(Base):
     """
-    Risk investigation case — created when a return request is risk-scored.
-    Merchant can APPROVE, VERIFY, or send to MANUAL_REVIEW.
+    Risk investigation case record created upon inference evaluation.
+    Tracks risk scores, AI narratives, SHAP factors, and merchant decisions.
     """
     __tablename__ = "investigations"
 
@@ -100,17 +90,17 @@ class Investigation(Base):
     customer_id = Column(String, index=True, nullable=False)
     order_id = Column(String, nullable=True)
 
-    # ML output
+    # Machine Learning risk assessment
     risk_score = Column(Float, nullable=True)          # 0.0 to 100.0
     risk_level = Column(String, nullable=True)          # LOW / MEDIUM / HIGH
     recommendation = Column(String, nullable=True)      # APPROVE / VERIFY / MANUAL_REVIEW
-    ai_summary = Column(Text, nullable=True)            # Generated AI narrative
-    top_risk_factors = Column(Text, nullable=True)      # JSON string of SHAP factors
+    ai_summary = Column(Text, nullable=True)            # LLM explanatory narrative
+    top_risk_factors = Column(Text, nullable=True)      # Serialized SHAP contribution factors
 
-    # Merchant decision
+    # Merchant decision lifecycle
     action_taken = Column(String, nullable=True)        # APPROVE / VERIFY / MANUAL_REVIEW / PENDING
-    action_by = Column(String, nullable=True)           # Merchant user ID
-    action_notes = Column(Text, nullable=True)          # Optional notes from merchant
+    action_by = Column(String, nullable=True)           # Merchant identifier or 'system'
+    action_notes = Column(Text, nullable=True)          # Merchant investigation notes
 
     # Timestamps
     created_at = Column(DateTime, server_default=func.now())
@@ -119,8 +109,7 @@ class Investigation(Base):
 
 class AuditLog(Base):
     """
-    Immutable audit trail of every merchant action.
-    Spec: Every APPROVE / VERIFY / MANUAL_REVIEW must be logged.
+    Immutable compliance audit ledger capturing every decision event.
     """
     __tablename__ = "audit_logs"
 
@@ -130,6 +119,6 @@ class AuditLog(Base):
     customer_id = Column(String, nullable=True)
 
     action = Column(String, nullable=False)             # APPROVE / VERIFY / MANUAL_REVIEW / RISK_SCORED
-    performed_by = Column(String, nullable=True)        # Merchant user / system
-    details = Column(Text, nullable=True)               # JSON payload
+    performed_by = Column(String, nullable=True)        # Operator / system
+    details = Column(Text, nullable=True)               # Structured event metadata
     timestamp = Column(DateTime, server_default=func.now())
