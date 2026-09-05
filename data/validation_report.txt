@@ -1,0 +1,71 @@
+
+============================================================
+  ROW COUNTS
+============================================================
+  customers : 5,000
+  orders    : 34,809
+  returns   : 5,998
+  refunds   : 4,127
+  devices   : 4,598
+  addresses : 4,666
+
+============================================================
+  UNIQUE-ID CHECKS
+============================================================
+  [PASS]  customer_id unique
+  [PASS]  order_id unique
+  [PASS]  return_id unique
+  [PASS]  refund_id unique
+  [PASS]  device_id unique
+  [PASS]  address_id unique
+
+============================================================
+  NULL CHECKS
+============================================================
+  [PASS]  customers - no nulls
+  [PASS]  orders - no nulls
+  [PASS]  returns - no nulls
+  [PASS]  refunds - no nulls
+  [PASS]  devices - no nulls
+  [PASS]  addresses - no nulls
+
+============================================================
+  FOREIGN-KEY CHECKS
+============================================================
+  [PASS]  orders.customer_id -> customers
+  [PASS]  returns.order_id -> orders
+  [PASS]  returns.customer_id -> customers
+  [PASS]  refunds.order_id -> orders
+  [PASS]  refunds.customer_id -> customers
+  [PASS]  customers.device_id -> devices
+  [PASS]  customers.address_id -> addresses
+
+============================================================
+  IMPOSSIBLE-VALUE CHECKS
+============================================================
+  [PASS]  order_amount > 0
+  [PASS]  return_amount > 0
+  [PASS]  refund_amount > 0
+  [PASS]  refund_amount <= order_amount
+  [PASS]  return_amount <= order_amount
+  [PASS]  linked_accounts >= 1 (devices)
+  [PASS]  linked_accounts >= 1 (addresses)
+  [PASS]  account_age_days >= 0
+
+============================================================
+  DATE-CONSISTENCY CHECKS
+============================================================
+  [PASS]  return_date >= order_date
+  [PASS]  refund_date >= order_date
+  [PASS]  order_date >= signup_date
+
+============================================================
+  DISTRIBUTION SUMMARIES
+============================================================
+  Customers with 0 returns : 2795
+  Customers with >=1 return: 2205
+  Max returns per customer : 16
+  Mean returns (returners) : 2.7
+  Shared devices (>1 acct) : 153
+  Shared addresses (>1 acct): 169
+  Orders/customer — min: 3, max: 25, mean: 7.0

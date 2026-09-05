@@ -1,0 +1,47 @@
+# ============================================================
+# ReturnShield AI - Requirements
+# ============================================================
+#
+# YEH PACKAGES KIS LIYE HAIN?
+# ────────────────────────────
+# 1. Data Manipulation & Math:
+#    - numpy: Matrix aur array computations
+#    - pandas: Dataframe operations, CSV load/save/cleaning
+#
+# 2. Machine Learning & Modeling (Krish Naik Style):
+#    - scikit-learn: Pipelines, ColumnTransformer, Imputers, Encoders, Models
+#    - xgboost: State-of-the-art gradient boosting model
+#
+# 3. Visualization & EDA (Optional Analysis):
+#    - matplotlib: Plotting charts aur curves (ROC-AUC, Confusion Matrix)
+#    - seaborn: Statistical data visualization
+#
+# 4. API & Backend (Phase 3 & 4):
+#    - fastapi: Fast high-performance REST API framework
+#    - uvicorn: ASGI web server API run karne ke liye
+#    - pydantic: Input data validation aur schemas
+#    - python-multipart: Form data & file uploads
+#    - requests: HTTP client testing ke liye
+# ============================================================
+
+# Core Data Science & ML
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+shap>=0.43.0
+
+# Visualization & Evaluation
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Backend API (FastAPI)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.0
+python-multipart>=0.0.6
+requests>=2.31.0
+
+# AI Narrative Generation
+groq>=0.9.0
+python-dotenv>=1.0.0

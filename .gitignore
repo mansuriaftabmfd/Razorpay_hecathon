@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+react-frontend/
+.venv/
+__pycache__/
+*.pyc
+
+# Build
+dist/
+frontend/dist/
+build/
+
+# Logs
+*.log
+logs/
+backend_err.log
+frontend_err.log
+backend.log
+frontend.log
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+returnshield.db
+
+# ML model binaries / large files
+artifacts/*.pkl
+artifacts/*.joblib
+*.pkl
+*.joblib
