@@ -111,6 +111,7 @@ def health_check(db: Session = Depends(get_db)):
 # ============================================================
 
 @app.get("/api/dashboard/overview", response_model=DashboardOverview, tags=["Dashboard"])
+@app.get("/api/overview", response_model=DashboardOverview, tags=["Dashboard"])
 def dashboard_overview(db: Session = Depends(get_db)):
     """
     Live KPI metrics for the merchant dashboard.
@@ -475,6 +476,7 @@ def regenerate_ai_summary(case_id: str, db: Session = Depends(get_db)):
 # ============================================================
 
 @app.get("/api/metrics", tags=["Model"])
+@app.get("/api/model/metrics", tags=["Model"])
 def get_model_metrics():
     """Returns actual XGBoost evaluation metrics from artifacts/metrics.json."""
     try:
