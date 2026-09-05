@@ -112,7 +112,7 @@ export function AboutPage({ onNavigate }) {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, width: '100%' }}>
 
       {/* ══════════════════════════════════════════
           HERO SECTION
